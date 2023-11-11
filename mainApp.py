@@ -70,11 +70,11 @@ def extract_data(question):
 
     # Extract the explanation and sub-topic
     extras = question.find_all('td')[5:]
-    question_dict[format[6]] = unicodedata.normalize("NFKD", extras[0].find('p').text.strip().replace('\n', '')) if extras[0].find('p') else ''  # Explanation
-    question_dict[format[7]] = unicodedata.normalize("NFKD", extras[1].find('p').text.strip().replace('\n', '')) if extras[1].find('p') else ''  # Hint
-    question_dict[format[8]] = unicodedata.normalize("NFKD", extras[2].find('p').text.strip().replace('\n', '')) if extras[2].find('p') else ''  # Sub-topic
+    question_dict[format[6]] = unicodedata.normalize("NFKD", extras[0].find('p').text.strip().replace('\n', '')) if extras[0].find('p') else extras[0].text.strip().replace('\n', '')  # Explanation
+    question_dict[format[7]] = extras[1].text.strip().replace('\n', '')  # Hint
+    question_dict[format[8]] = extras[2].text.strip().replace('\n', '')  # Sub-topic
     return question_dict
-
+    
 
 # Creating a prompt template
 genQtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""

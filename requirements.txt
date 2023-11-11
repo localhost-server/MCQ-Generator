@@ -1,0 +1,6 @@
+streamlit
+openai == 0.28.1
+langchain
+pypandoc
+bs4
+pandoc

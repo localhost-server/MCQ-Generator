@@ -37,6 +37,20 @@ uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])
 # print(models)
 # print(uploaded_file)
 # type(uploaded_file)
+import subprocess
+
+def install_pandoc():
+    try:
+        # Update the package list
+        subprocess.run(["sudo", "apt-get", "update"], check=True)
+        # Install Pandoc
+        subprocess.run(["sudo", "apt-get", "install", "-y", "pandoc"], check=True)
+        print("Pandoc installed successfully.")
+    except subprocess.CalledProcessError:
+        print("Failed to install Pandoc.")
+
+install_pandoc()
+
 
 # API JSON PARSER
 def parse_string(data):

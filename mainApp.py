@@ -55,7 +55,7 @@ def extract_data(question):
     p_tags = question.find('th').find_all('p')
     question_text = ' '.join([p.text for p in p_tags[:-1]])  # Join all p tags except the last one (year)
     question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
-    question_dict[format[0]] = question_text.strip().replace('\n', '\t')
+    question_dict[format[0]] = question_text.strip().replace('\n', ' ')
 
     # Extract the options
     options = question.find_all('td')[:4]
@@ -71,8 +71,8 @@ def extract_data(question):
     # Extract the explanation and sub-topic
     extras = question.find_all('td')[5:]
     question_dict[format[6]] = unicodedata.normalize("NFKD", extras[0].find('p').text.strip().replace('\n', '')) if extras[0].find('p') else extras[0].text.strip().replace('\n', '')  # Explanation
-    question_dict[format[7]] = extras[1].text.strip().replace('\n', '')  # Hint
-    question_dict[format[8]] = extras[2].text.strip().replace('\n', '')  # Sub-topic
+    question_dict[format[7]] = extras[1].text.strip().replace('\n', ' ')  # Hint
+    question_dict[format[8]] = extras[2].text.strip().replace('\n', ' ')  # Sub-topic
     return question_dict
     
 

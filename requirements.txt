@@ -2,3 +2,4 @@ langchain
 pypandoc
 bs4
 pandoc
+openai == 0.28

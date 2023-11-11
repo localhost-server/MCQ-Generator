@@ -1,0 +1,4 @@
+langchain
+pypandoc
+bs4
+pandoc

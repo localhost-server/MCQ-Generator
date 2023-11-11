@@ -1,6 +1,6 @@
 # Importing modules 
 import streamlit as st
-# from PyPDF2 import PdfReader as reader
+import re
 # import io
 import json
 import ast
@@ -51,8 +51,14 @@ def parse_string(data):
 # Extracting data from html content from question 
 def extract_data(question):
     question_dict={}
+    # # Extract the question
+    # question_dict[format[0]] = question.find('th').text.strip().replace('\n', '\t')
     # Extract the question
-    question_dict[format[0]] = question.find('th').text.strip().replace('\n', '')
+    p_tags = question.find('th').find_all('p')
+    question_text = p_tags[0].text if p_tags else ''
+    question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
+    question_dict[format[0]] = question_text.strip().replace('\n', '\t')
+
 
     # Extract the options
     options = question.find_all('td')[:4]
@@ -68,7 +74,7 @@ def extract_data(question):
     # Extract the explanation and sub-topic
     extras = question.find_all('td')[5:]
     question_dict[format[6]] = unicodedata.normalize("NFKD", extras[0].text.strip().replace('\n', ''))  # Explanation
-    question_dict[format[7]] = unicodedata.normalize("NFKD", extras[1].text.strip().replace('\n', ''))  # Hint
+    question_dict[format[7]] = unicodedata.normalize("NFKD", extras[1].text.strip().replace('\n', '\t'))  # Hint
     question_dict[format[8]] = unicodedata.normalize("NFKD", extras[2].text.strip().replace('\n', ''))  # Sub-topic
     return question_dict
 

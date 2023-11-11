@@ -52,7 +52,7 @@ def parse_string(data):
 def extract_data(question):
     question_dict={}
     # Extract the question
-    question_dict[format[0]] = question.find('p').text.strip().replace('\n', '')
+    question_dict[format[0]] = question.find('th').text.strip().replace('\n', '')
 
     # Extract the options
     options = question.find_all('td')[:4]

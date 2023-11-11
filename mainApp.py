@@ -5,7 +5,7 @@ import re
 import json
 import ast
 import os
-import openai
+# import openai
 # Importing Python Docx Reader
 import unicodedata
 # Importing PyPanDoc
@@ -22,7 +22,7 @@ from langchain.chains import LLMChain
 
 # Setting up the API key
 os.environ['OPENAI_API_KEY'] = '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'
-openai.api_key = os.environ['OPENAI_API_KEY']
+# openai.api_key = os.environ['OPENAI_API_KEY']
 
 # Setting page config to wide mode
 st.set_page_config(layout="wide")
@@ -86,7 +86,8 @@ genCtemplate= """I have questions in specific format and you have to correct the
 genAdtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic but it should involve some advanced concepts or more tough with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
 
 
-llm = ChatOpenAI(model="gpt-4-1106-preview")
+# llm = ChatOpenAI(model="gpt-4-1106-preview")
+llm = ChatOpenAI(model="gpt-4-1106-preview",openai_api_key=os.environ['OPENAI_API_KEY'])
 prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
 llm_chain = LLMChain(prompt=prompt, llm=llm)
 

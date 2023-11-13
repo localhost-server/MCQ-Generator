@@ -21,7 +21,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
 # Setting up the API key
-os.environ['OPENAI_API_KEY'] = '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' 
+os.environ['OPENAI_API_KEY'] = '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'
 # openai.api_key = os.environ['OPENAI_API_KEY']
 
 # Setting page config to wide mode
@@ -49,41 +49,14 @@ def parse_string(data):
         return ast.literal_eval(data)
     
 # Extracting data from html content from question 
-# def extract_data(question):
-#     question_dict={}
-#     # Extract the question
-#     p_tags = question.find('th').find_all('p')
-#     question_text = ' '.join([p.text for p in p_tags[:-1]])  # Join all p tags except the last one (year) 
-#     question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
-#     question_dict[format[0]] = question_text.strip().replace('\n', ' ')
-
-#     # Extract the options
-#     options = question.find_all('td')[:4]
-#     for i, option in enumerate(options, 1):
-#         text = option.find('p').text.strip().replace('\n', '') if option.find('p') else ''
-#         text = unicodedata.normalize("NFKD", text)  # Normalize the Unicode data
-#         question_dict[format[i]] = text
-
-#     # Extract the correct answer
-#     correct_answer = question.find_all('td')[4].text.strip().replace('\n', '')
-#     question_dict[format[5]] = unicodedata.normalize("NFKD", correct_answer)
-
-#     # Extract the explanation and sub-topic
-#     extras = question.find_all('td')[5:]
-#     question_dict[format[6]] = unicodedata.normalize("NFKD", extras[0].find('p').text.strip().replace('\n', '')) if extras[0].find('p') else extras[0].text.strip().replace('\n', '')  # Explanation
-#     question_dict[format[7]] = extras[1].text.strip().replace('\n', ' ')  # Hint
-#     question_dict[format[8]] = extras[2].text.strip().replace('\n', ' ')  # Sub-topic
-#     return question_dict
 def extract_data(question):
     question_dict = {}
     format = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer", "Hint", "Explanation", "Sub-topic"]
 
     # Extract the question
-    # p_tags = question.find('th').find_all('p')
-    # question_text = ' '.join([p.text for p in p_tags[:-1]])  # Join all p tags except the last one (year)
-    question_text=question.find('tr',class_='header').text.strip()
+    p_tags = question.find('th').find_all('p')
+    question_text = ' '.join([p.text for p in p_tags[:-1]])  # Join all p tags except the last one (year)
     question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
-
     question_dict[format[0]] = question_text.strip().replace('\n', ' ')
 
     # Extract the options
@@ -106,7 +79,7 @@ def extract_data(question):
     question_dict[format[6]] = hint
 
     # Extract the explanation
-    explanation = options[6]  # Explanation is in multiple p tags
+    explanation = options[7].find_all('p')  # Explanation is in multiple p tags
     explanation_text = ' '.join([p.text for p in explanation]).strip().replace('\n', ' ')
     question_dict[format[7]] = explanation_text
 
@@ -116,7 +89,6 @@ def extract_data(question):
 
     return question_dict
 
-    
 
 # Creating a prompt template
 genQtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""

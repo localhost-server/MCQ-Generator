@@ -98,11 +98,11 @@ def extract_data(question):
         question_dict[format[i]] = text
 
     # Extract the correct answer
-    correct_answer = options[5].text.strip().replace('\n', ' ')
+    correct_answer = options[4].text.strip().replace('\n', ' ')
     question_dict[format[5]] = correct_answer
 
     # Extract the hint (assuming it's the text in the 7th td tag)
-    hint = options[6].text.strip().replace('\n', ' ')
+    hint = options[5].text.strip().replace('\n', ' ')
     question_dict[format[6]] = hint
 
     # Extract the explanation
@@ -111,12 +111,11 @@ def extract_data(question):
     question_dict[format[7]] = explanation_text
 
     # Extract the sub-topic
-    sub_topic = options[-1].text.strip().replace('\n', ' ')
+    sub_topic = options[7].text.strip().replace('\n', ' ')
     question_dict[format[8]] = sub_topic
 
     return question_dict
 
-    
 
 # Creating a prompt template
 genQtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""

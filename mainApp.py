@@ -247,7 +247,7 @@ if uploaded_file:
             prompt = PromptTemplate(template=genAdtemplate, input_variables=["question"])
             llm_chain = LLMChain(prompt=prompt, llm=llm)
             generatedContent=llm_chain.run(str(qs))
-            print(f" Advanced : {generatedContent})
+            print(f" Advanced : {generatedContent}")
             json_str=parse_string(generatedContent)
 
             # print(type(json_str))

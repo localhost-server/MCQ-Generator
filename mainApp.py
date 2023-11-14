@@ -100,7 +100,7 @@ def extract_data(question):
     # Extract the correct answer
     mapping = {'1': 'a', 'a': 'a', '2': 'b', 'b': 'b', '3': 'c', 'c': 'c', '4': 'd', 'd': 'd'}
     correct_answer = options[4].text.strip().replace('\n', ' ')
-    question_dict[format[5]] = mapping.get(correct_answer,None)
+    question_dict[format[5]] = mapping.get(correct_answer.lower(),None)
 
     # Extract the hint (assuming it's the text in the 7th td tag)
     hint = options[5].text.strip().replace('\n', ' ')

@@ -141,7 +141,7 @@ if uploaded_file:
 
     # Checking data in text format
     # opening_file=Document(uploaded_file)
-    opening_file=pypandoc.convert_file(tmp_file_path, 'html')
+    opening_file=pypandoc.convert_file(tmp_file_path, 'html',extra_args=['--quiet'])
     # Converting into Soup HTML format
     soup = BeautifulSoup(opening_file, 'html.parser')
     # Checking the number of tables in the document

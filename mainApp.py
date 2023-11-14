@@ -216,7 +216,7 @@ if uploaded_file:
         if gen_similar:
             # st.write(qs)
             generatedContent=llm_chain.run(str(qs))
-            print(generatedContent)
+            print(f" Similar : {generatedContent}")
             json_str=parse_string(generatedContent)
             # print(type(json_str))
 
@@ -232,7 +232,7 @@ if uploaded_file:
             llm_chain = LLMChain(prompt=prompt, llm=llm)
 
             generatedContent=llm_chain.run(str(qs))
-            print(generatedContent)
+            print(f" Corrected : {generatedContent}")
             json_str=parse_string(generatedContent)
             # print(type(json_str))
 
@@ -247,7 +247,7 @@ if uploaded_file:
             prompt = PromptTemplate(template=genAdtemplate, input_variables=["question"])
             llm_chain = LLMChain(prompt=prompt, llm=llm)
             generatedContent=llm_chain.run(str(qs))
-            print(generatedContent)
+            print(f" Advanced : {generatedContent})
             json_str=parse_string(generatedContent)
 
             # print(type(json_str))

@@ -194,7 +194,7 @@ if uploaded_file:
         q_no = st.number_input(f"Select Question No : Max {no_questions} ", 1, no_questions, 1)
 
         # st.write(question_set["Questions"][q_no - 1])
-        print(questions[q_no-1])
+        # print(questions[q_no-1])
         qs=question_set["Questions"][q_no - 1]
         for key,values in qs.items():
             st.write(f"{key} : {values}")

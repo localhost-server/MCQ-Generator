@@ -56,10 +56,10 @@ if uploaded_file:
     
     
     # By Default creating a Document whenever a file is uploaded
-    if 'doc' not in ss:
-        ss.doc=Document()
-    elif 'doc' in ss:
+    if 'doc' in ss:
         del ss['doc']
+    elif 'doc' not in ss:
+        ss.doc=Document()
         
     # Creating a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp_file:

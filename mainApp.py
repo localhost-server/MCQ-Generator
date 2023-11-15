@@ -57,7 +57,7 @@ if uploaded_file:
 
     if file_upload_check(uploaded_file):
         # By Default creating a Document
-        if not ss.doc:
+        if 'doc' not in ss:
             ss.doc=Document()
             ss.genQs=-1 
     else:

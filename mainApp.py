@@ -148,7 +148,7 @@ if uploaded_file:
             st.write(f"Generated Question : ")
             json_str=parse_string(ss.generatedContent)
             disGen(json_str) 
-        
+
         elif advanced:
             prompt = PromptTemplate(template=genAdtemplate, input_variables=["question"])
             llm_chain = LLMChain(prompt=prompt, llm=llm)

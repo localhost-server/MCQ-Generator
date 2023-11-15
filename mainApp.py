@@ -31,9 +31,6 @@ st.title('MCQ Solver')
 # Uploading the file
 uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])
 
-# By Default creating a Document
-if 'doc' not in ss:
-    ss.doc=Document()
 # For counting the number of questions
 if 'genQs' not in ss:
     ss.genQs=-1
@@ -56,7 +53,14 @@ if 'generatedContent' not in ss:
 
 # Checking if the file is uploaded or not
 if uploaded_file:
-
+    
+    
+    # By Default creating a Document whenever a file is uploaded
+    if 'doc' not in ss:
+        ss.doc=Document()
+    elif 'doc' in ss:
+        del ss['doc']
+        
     # Creating a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp_file:
         # Write the uploaded file's content to the temporary file

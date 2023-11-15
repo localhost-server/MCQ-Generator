@@ -56,9 +56,7 @@ if uploaded_file:
     
     
     # By Default creating a Document whenever a file is uploaded
-    if 'doc' in ss:
-        del ss['doc']
-    elif 'doc' not in ss:
+    if 'doc' not in ss:
         ss.doc=Document()
         
     # Creating a temporary file

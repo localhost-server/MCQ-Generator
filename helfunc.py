@@ -2,7 +2,21 @@ import json
 import ast
 import re
 import streamlit as st
+from streamlit import session_state as ss
 import unicodedata
+
+def file_upload_check(file):
+    if not hasattr(ss, 'uploaded_file') or ss.uploaded_file is None:
+        # If there is no previously uploaded file, set the current file as the uploaded file
+        ss.uploaded_file = file
+        return True
+    elif ss.uploaded_file.name == file.name:
+        # If the current file has the same name as the previously uploaded file, return True
+        return True
+    else:
+        # If the current file is different from the previously uploaded file, update the uploaded file and return False
+        ss.uploaded_file = file
+        return False
 
 # Displaying data in streamlit
 def disGen(data):

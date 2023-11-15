@@ -176,21 +176,22 @@ if uploaded_file:
             json_str=parse_string(ss.generatedContent)
             disGen(json_str) 
 
-        elif addIt:
-            ss.genQs+=1
-            try:
-                print(f" Generated Question : {ss.genQs+1} ")
-                json_str=parse_string(ss.generatedContent)
-                ss.doc.add_table(rows=9, cols=1, style='Table Grid')
-                for j, items in enumerate(json_str.items()):
-                    ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
-                ss.doc.add_paragraph()
-                # ss.doc.save('generated.docx')
-                st.write(" Question Added ")
-                print(f"Table Added")
-            except:
-                st.warning("Please Generate the Question First")
-                ss.genQs-=1
+        with addit:
+            if addIt:
+                ss.genQs+=1
+                try:
+                    print(f" Generated Question : {ss.genQs+1} ")
+                    json_str=parse_string(ss.generatedContent)
+                    ss.doc.add_table(rows=9, cols=1, style='Table Grid')
+                    for j, items in enumerate(json_str.items()):
+                        ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
+                    ss.doc.add_paragraph()
+                    # ss.doc.save('generated.docx')
+                    st.write("Qs ➕ed ")
+                    print(f"Table Added")
+                except:
+                    st.warning("Please Generate the Question First")
+                    ss.genQs-=1
         
         with download:
             if downld:

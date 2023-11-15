@@ -1,11 +1,10 @@
 # Importing modules 
 import streamlit as st
-import re
+from streamlit import session_state as ss
 # import io
-import json
-import ast
+from helfunc import extract_data , parse_string , disGen
 import os
-# import openai
+from docx import Document
 # Importing Python Docx Reader
 import unicodedata
 # Importing PyPanDoc
@@ -32,89 +31,28 @@ st.title('MCQ Solver')
 # Uploading the file
 uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])
 
-# Available models
-# models=openai.Engine.list()
-# print(models)
-# print(uploaded_file)
-# type(uploaded_file)
-
-# API JSON PARSER
-def parse_string(data):
-    if data.startswith("```json") and data.endswith("```"):
-        start=data.find("{")
-        end=data.rfind("}")+1
-        json_str=data[start:end]
-        return json.loads(json_str)
-    else:
-        return ast.literal_eval(data)
-    
-# Extracting data from html content from question 
-def extract_data(question):
-    question_dict = {}
-    format = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer", "Hint", "Explanation", "Sub-topic"]
-
-    # Extract the question
-    # p_tags = question.find('th').find_all('p')
-    # question_text = ' '.join([p.text for p in p_tags[:-1]])  # Join all p tags except the last one (year)
-    try:
-        question_text=question.find('tr',class_='header').text.strip()
-        question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
-
-        question_dict[format[0]] = question_text.strip().replace('\n', ' ')
-
-        # Extract the options
-        options = question.find_all('td')
-        for i, option in enumerate(options[:5], 1):  # Only the first 5 td tags are options
-            if option.find('blockquote'):  # If the option is in a blockquote tag
-                text = option.find('blockquote').text.strip().replace('\n', ' ')
-            elif option.find('p'):  # If the option is in a p tag
-                text = option.find('p').text.strip().replace('\n', ' ')
-            else:  # If the option is directly in the td tag
-                text = option.text.strip().replace('\n', ' ')
-            question_dict[format[i]] = text
-
-        # Extract the correct answer
-        mapping = {'1': 'a', 'a': 'a', '2': 'b', 'b': 'b', '3': 'c', 'c': 'c', '4': 'd', 'd': 'd'}
-
-        correct_answer = options[4].text.strip().replace('\n', ' ')
-        question_dict[format[5]] = mapping.get(correct_answer,None)
-
-        # Extract the hint (assuming it's the text in the 7th td tag)
-        hint = options[5].text.strip().replace('\n', ' ')
-        question_dict[format[6]] = hint
-
-        # Extract the explanation
-        explanation = options[6]  # Explanation is in multiple p tags
-        explanation_text = ' '.join([p.text for p in explanation]).strip().replace('\n', ' ')
-        question_dict[format[7]] = explanation_text
-
-        # Extract the sub-topic
-        sub_topic = options[7].text.strip().replace('\n', ' ')
-        question_dict[format[8]] = sub_topic
-
-        return question_dict
-    except:
-        for i , content in enumerate(question.find_all('tr')):
-            if i==5:
-                # Extract the correct answer
-                mapping = {'1': 'a', 'a': 'a', '2': 'b', 'b': 'b', '3': 'c', 'c': 'c', '4': 'd', 'd': 'd'}
-                correct_answer = content.text.strip().replace('\n', ' ')
-                question_dict[format[5]] = mapping.get(correct_answer,None)
-            else:
-                question_dict[format[i]]=content.text.strip()
-        return question_dict
-
+# By Default creating a Document
+if 'doc' not in ss:
+    ss.doc=Document()
+# For counting the number of questions
+if 'genQs' not in ss:
+    ss.genQs=-1
 
 # Creating a prompt template
 genQtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
+# template= """I have questions in specific format and you have to generate new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same : {question}"""
+# genCtemplate= """I have questions in specific format and you have to correct the content and return the corrected question in json format only , improve the hint or explanation if you feel it's not correct , keys format should be strictly same , keep sub-topic same , don't send additional data like description of what you have done : {question}"""
 genCtemplate= """I have questions in specific format and you have to correct the content and return the corrected question in json format only , rephrase the hint or explanation if you feel it's not correct , keys format should be strictly same , keep sub-topic same , don't send additional data like description of what you have done : {question}"""
 genAdtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic but it should involve some advanced concepts or more tough with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
 
 
 llm = ChatOpenAI(model="gpt-4-1106-preview",openai_api_key=os.environ['OPENAI_API_KEY'])
-prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
-llm_chain = LLMChain(prompt=prompt, llm=llm)
+# prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
+# llm_chain = LLMChain(prompt=prompt, llm=llm)
 
+# Using ss to store and retrieve generated content
+if 'generatedContent' not in ss:
+    ss.generatedContent = None
 
 # Checking if the file is uploaded or not
 if uploaded_file:
@@ -135,26 +73,15 @@ if uploaded_file:
     configs=soup.find_all('table')[0]
     questions=soup.find_all('table')[1:]
     no_questions=len(questions)
-
-    # configs=tables[0]
-    # questions=tables[1:]
-    # no_questions=len(questions)
     st.info(f"No of questions in the document are {no_questions}")
 
 
     # Creating json file for the questions
     question_set={}
     format=["Question","Option A","Option B","Option C","Option D","Correct Answer","Hint","Explanation","Sub-topic"]
-    
     rows = configs.find_all('tr')
     # Creating a dictionary for the configs
     question_set["Config"]={cols[0].text: cols[1].text for row in rows for cols in [row.find_all(['th', 'td'])] if cols}
-    
-    # question_set["Config"]=dict(zip(
-    #     [keys.text for keys in configs.columns[0].cells],
-    #     [values.text for values in configs.columns[1].cells]
-    #     ))
-
     # st.info(question_set["Config"])
     for key,values in question_set["Config"].items():
         # Checking in console
@@ -164,16 +91,8 @@ if uploaded_file:
     # question_set["Questions"]=[dict(zip(format,[(values.text[:-6].replace('\n','') if '(20' in values.text else values.text.replace('\n','')) for values in questions[i].columns[0].cells])) for i in range(no_questions)]
     question_set["Questions"]=[extract_data(question) for question in questions]
 
-    # print(question_set["Questions"])
-    # ques=st.button("See Questions")
-    # if ques:
-    # q_no=st.slider("Select Question",1,no_questions)
-    # st.write(question_set["Questions"][q_no-1])
-        # st.write(question_set.get(3))
-
-
     # Creating Columns
-    ReadQuestion,GenerateQuestion=st.columns([2,3])
+    ReadQuestion,GenerateQuestion=st.columns([4,5])
 
     # Reading the question and setting up Column 1
     with ReadQuestion:
@@ -182,65 +101,77 @@ if uploaded_file:
         # st.write(question_set["Questions"][q_no - 1])
         # print(questions[q_no-1])
         qs=question_set["Questions"][q_no - 1]
-        for key,values in qs.items():
-            st.write(f"{key} : {values}")
-            # print(f"{key} : {values}")
+        disGen(qs)
+
         
-        # Dividing the Button into two Columns
-        gen_similar,gen_corrected,gen_advanced=st.columns(3)
+        # Dividing the Button into five Columns
+        gen_similar,gen_corrected,gen_advanced,addit,download=st.columns(5)
 
         # Creating Buttons side by side
         with gen_similar:
-            gen_similar=st.button("Generate Qs")
+            similar=st.button("⚙️")
+            
         with gen_corrected:
-            gen_corrected=st.button("Correct It")
+            corrected=st.button("✅")
+            
         with gen_advanced:
-            gen_advanced=st.button("Gen Advanced")
+            advanced=st.button("↗️")
+        
+        with addit:
+            addIt=st.button(" ➕ ")
+        
+        with download:
+            downld=st.button("⏬")
+
 
     with GenerateQuestion:
-        print(f"Gen Qs : {gen_similar} , Correct It : {gen_corrected} , Gen Advanced : {gen_advanced} ")
-        if gen_similar:
-            # st.write(qs)
-            generatedContent=llm_chain.run(str(qs))
-            print(f" Similar : {generatedContent}")
-            json_str=parse_string(generatedContent)
-            # print(type(json_str))
-
-            st.write(f"Generated Question : ")
-            for key,values in json_str.items():
-                st.write(f"{key} : {values}")
-            addIt=st.button(" ➕ ")
-                # print(f"{key} : {values}")
-            # st.write(json_str)
+        print(f"Gen Qs : {similar} , Correct It : {corrected} , Gen Advanced : {advanced} , addIt : {addIt} , downld : {downld}" )
         
-        elif gen_corrected:
+        if similar :
+            prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
+            llm_chain = LLMChain(prompt=prompt, llm=llm)
+            ss.generatedContent = llm_chain.run(str(qs))
+            # For logging purpose
+            print(f" Similar : {ss.generatedContent}")
+            st.write(f"Generated Question : ") 
+            json_str=parse_string(ss.generatedContent)
+            disGen(json_str) 
+
+        elif corrected:
             prompt = PromptTemplate(template=genCtemplate, input_variables=["question"])
             llm_chain = LLMChain(prompt=prompt, llm=llm)
-
-            generatedContent=llm_chain.run(str(qs))
-            print(f" Corrected : {generatedContent}")
-            json_str=parse_string(generatedContent)
-            # print(type(json_str))
-
-            st.write(f"Generated Corrected Question : ")
-            for key,values in json_str.items():
-                st.write(f"{key} : {values}")
-            addIt=st.button(" ➕ ")
-                # print(f"{key} : {values}")
-            # st.write(json_str)
-                    
-        elif gen_advanced:
+            ss.generatedContent = llm_chain.run(str(qs))
+            print(f" Corrected : {ss.generatedContent}")
+            st.write(f"Generated Question : ")
+            json_str=parse_string(ss.generatedContent)
+            disGen(json_str) 
+        
+        elif advanced:
             prompt = PromptTemplate(template=genAdtemplate, input_variables=["question"])
             llm_chain = LLMChain(prompt=prompt, llm=llm)
-            generatedContent=llm_chain.run(str(qs))
-            print(f" Advanced : {generatedContent}")
-            json_str=parse_string(generatedContent)
+            ss.generatedContent = llm_chain.run(str(qs))
+            print(f" Advanced : {ss.generatedContent}")
+            st.write(f"Generated Question : ")
+            json_str=parse_string(ss.generatedContent)
+            disGen(json_str) 
 
-            # print(type(json_str))
-
-            st.write(f"Generated Advanced Question : ")
-            for key,values in json_str.items():
-                st.write(f"{key} : {values}")
-            addIt=st.button(" ➕ ")
-                # print(f"{key} : {values}")
-            # st.write(json_str)
+        elif addIt:
+            ss.genQs+=1
+            try:
+                print(f" Generated Question : {ss.genQs+1} ")
+                json_str=parse_string(ss.generatedContent)
+                ss.doc.add_table(rows=9, cols=1, style='Table Grid')
+                for j, items in enumerate(json_str.items()):
+                    ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
+                ss.doc.add_paragraph()
+                # ss.doc.save('generated.docx')
+                print(f"Table Added")
+            except:
+                st.warning("Please Generate the Question First")
+                ss.genQs-=1
+        
+        with download:
+            if downld:
+                st.write("File Saved")
+                ss.doc.save('generated.docx')
+                st.download_button(label=" ⬇️ ",data=open('generated.docx','rb').read(),file_name='generated.docx',mime='application/octet-stream',)

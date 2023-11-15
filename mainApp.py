@@ -2,7 +2,7 @@
 import streamlit as st
 from streamlit import session_state as ss
 # import io
-from helfunc import extract_data , parse_string , disGen
+from helfunc import extract_data , parse_string , disGen , file_upload_check
 import os
 from docx import Document
 # Importing Python Docx Reader
@@ -55,8 +55,13 @@ if 'generatedContent' not in ss:
 # Checking if the file is uploaded or not
 if uploaded_file:
 
-    # By Default creating a Document
-    if 'doc' not in ss:
+    if file_upload_check(uploaded_file):
+        # By Default creating a Document
+        if not ss.doc:
+            ss.doc=Document()
+            ss.genQs=-1 
+    else:
+        del ss.doc
         ss.doc=Document()
         ss.genQs=-1
         

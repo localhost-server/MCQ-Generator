@@ -31,9 +31,10 @@ st.title('MCQ Solver')
 # Uploading the file
 uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])
 
+
 # For counting the number of questions
-if 'genQs' not in ss:
-    ss.genQs=-1
+# if 'genQs' not in ss:
+#     ss.genQs=-1
 
 # Creating a prompt template
 genQtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
@@ -53,11 +54,11 @@ if 'generatedContent' not in ss:
 
 # Checking if the file is uploaded or not
 if uploaded_file:
-    
-    
-    # By Default creating a Document whenever a file is uploaded
+
+    # By Default creating a Document
     if 'doc' not in ss:
         ss.doc=Document()
+        ss.genQs=-1
         
     # Creating a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp_file:
@@ -147,7 +148,7 @@ if uploaded_file:
             st.write(f"Generated Question : ")
             json_str=parse_string(ss.generatedContent)
             disGen(json_str) 
-        
+
         elif advanced:
             prompt = PromptTemplate(template=genAdtemplate, input_variables=["question"])
             llm_chain = LLMChain(prompt=prompt, llm=llm)
@@ -167,6 +168,7 @@ if uploaded_file:
                     ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
                 ss.doc.add_paragraph()
                 # ss.doc.save('generated.docx')
+                st.write(" Question Added ")
                 print(f"Table Added")
             except:
                 st.warning("Please Generate the Question First")

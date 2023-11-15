@@ -2,6 +2,7 @@ import json
 import ast
 import re
 import streamlit as st
+import unicodedata
 
 # Displaying data in streamlit
 def disGen(data):
@@ -19,6 +20,7 @@ def parse_string(data):
         return ast.literal_eval(data)
     
 # Extracting data from html content from question 
+# Question Extraction function
 def extract_data(question):
     question_dict = {}
     format = ["Question", "Option A", "Option B", "Option C", "Option D", "Correct Answer", "Hint", "Explanation", "Sub-topic"]
@@ -41,22 +43,22 @@ def extract_data(question):
                 text = option.find('p').text.strip().replace('\n', ' ')
             else:  # If the option is directly in the td tag
                 text = option.text.strip().replace('\n', ' ')
-            question_dict[format[i]] = text
+            question_dict[format[i]] = unicodedata.normalize("NFKD",text)
 
         # Extract the correct answer
         mapping = {'1': 'a', 'a': 'a', '2': 'b', 'b': 'b', '3': 'c', 'c': 'c', '4': 'd', 'd': 'd'}
 
         correct_answer = options[4].text.strip().replace('\n', ' ')
-        question_dict[format[5]] = mapping.get(correct_answer.lower(),None)
+        question_dict[format[5]] = unicodedata.normalize("NFKD", mapping.get(correct_answer.lower(),None))
 
         # Extract the hint (assuming it's the text in the 7th td tag)
         hint = options[5].text.strip().replace('\n', ' ')
-        question_dict[format[6]] = hint
+        question_dict[format[6]] = unicodedata.normalize("NFKD",hint)
 
         # Extract the explanation
         explanation = options[6]  # Explanation is in multiple p tags
         explanation_text = ' '.join([p.text for p in explanation]).strip().replace('\n', ' ')
-        question_dict[format[7]] = explanation_text
+        question_dict[format[7]] = unicodedata.normalize("NFKD",explanation_text)
 
         # Extract the sub-topic
         sub_topic = options[7].text.strip().replace('\n', ' ')
@@ -71,5 +73,5 @@ def extract_data(question):
                 correct_answer = content.text.strip().replace('\n', ' ')
                 question_dict[format[5]] = mapping.get(correct_answer.lower(),None)
             else:
-                question_dict[format[i]]=content.text.strip()
+                question_dict[format[i]]=unicodedata.normalize("NFKD",content.text.strip())
         return question_dict

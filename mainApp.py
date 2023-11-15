@@ -113,7 +113,7 @@ if uploaded_file:
 
         
         # Dividing the Button into five Columns
-        gen_similar,gen_corrected,gen_advanced,addit,download=st.columns(5)
+        gen_similar,gen_corrected,copyit,gen_advanced,addit,download=st.columns(6)
 
         # Creating Buttons side by side
         with gen_similar:
@@ -121,6 +121,9 @@ if uploaded_file:
             
         with gen_corrected:
             corrected=st.button("✅")
+        
+        with copyit:
+            copied=st.button("©️📋")
             
         with gen_advanced:
             advanced=st.button("↗️")
@@ -133,56 +136,64 @@ if uploaded_file:
 
 
     with GenerateQuestion:
-        print(f"Gen Qs : {similar} , Correct It : {corrected} , Gen Advanced : {advanced} , addIt : {addIt} , downld : {downld}" )
-        try:
-            if similar :
-                prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
-                llm_chain = LLMChain(prompt=prompt, llm=llm)
-                ss.generatedContent = llm_chain.run(str(qs))
-                # For logging purpose
-                print(f" Similar : {ss.generatedContent}")
-                st.write(f"Generated Question : ") 
+        print(f"Gen Qs : {similar} , Correct It : {corrected} , Copied : {copied} Gen Advanced : {advanced} , addIt : {addIt} , downld : {downld}" )
+        
+        if similar :
+            prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
+            llm_chain = LLMChain(prompt=prompt, llm=llm)
+            ss.generatedContent = llm_chain.run(str(qs))
+            # For logging purpose
+            print(f" Similar : {ss.generatedContent}")
+            st.write(f"Generated Question : ") 
+            json_str=parse_string(ss.generatedContent)
+            disGen(json_str) 
+
+        elif corrected:
+            prompt = PromptTemplate(template=genCtemplate, input_variables=["question"])
+            llm_chain = LLMChain(prompt=prompt, llm=llm)
+            ss.generatedContent = llm_chain.run(str(qs))
+            print(f" Corrected : {ss.generatedContent}")
+            st.write(f"Generated Question : ")
+            json_str=parse_string(ss.generatedContent)
+            disGen(json_str) 
+
+        elif copied:
+            ss.genQs+=1
+            json_str=qs
+            ss.doc.add_table(rows=9, cols=1, style='Table Grid')
+            for j, items in enumerate(json_str.items()):
+                ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
+            ss.doc.add_paragraph()
+            st.write(" Question Copied and Added ")
+            print(f"Table Added")
+
+        elif advanced:
+            prompt = PromptTemplate(template=genAdtemplate, input_variables=["question"])
+            llm_chain = LLMChain(prompt=prompt, llm=llm)
+            ss.generatedContent = llm_chain.run(str(qs))
+            print(f" Advanced : {ss.generatedContent}")
+            st.write(f"Generated Question : ")
+            json_str=parse_string(ss.generatedContent)
+            disGen(json_str) 
+
+        elif addIt:
+            ss.genQs+=1
+            try:
+                print(f" Generated Question : {ss.genQs+1} ")
                 json_str=parse_string(ss.generatedContent)
-                disGen(json_str) 
-    
-            elif corrected:
-                prompt = PromptTemplate(template=genCtemplate, input_variables=["question"])
-                llm_chain = LLMChain(prompt=prompt, llm=llm)
-                ss.generatedContent = llm_chain.run(str(qs))
-                print(f" Corrected : {ss.generatedContent}")
-                st.write(f"Generated Question : ")
-                json_str=parse_string(ss.generatedContent)
-                disGen(json_str) 
-    
-            elif advanced:
-                prompt = PromptTemplate(template=genAdtemplate, input_variables=["question"])
-                llm_chain = LLMChain(prompt=prompt, llm=llm)
-                ss.generatedContent = llm_chain.run(str(qs))
-                print(f" Advanced : {ss.generatedContent}")
-                st.write(f"Generated Question : ")
-                json_str=parse_string(ss.generatedContent)
-                disGen(json_str) 
-    
-            elif addIt:
-                ss.genQs+=1
-                try:
-                    print(f" Generated Question : {ss.genQs+1} ")
-                    json_str=parse_string(ss.generatedContent)
-                    ss.doc.add_table(rows=9, cols=1, style='Table Grid')
-                    for j, items in enumerate(json_str.items()):
-                        ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
-                    ss.doc.add_paragraph()
-                    # ss.doc.save('generated.docx')
-                    st.write(" Question Added ")
-                    print(f"Table Added")
-                except:
-                    st.warning("Please Generate the Question First")
-                    ss.genQs-=1
-            
-            with download:
-                if downld:
-                    st.write("File Saved")
-                    ss.doc.save('generated.docx')
-                    st.download_button(label=" ⬇️ ",data=open('generated.docx','rb').read(),file_name='generated.docx',mime='application/octet-stream',)
-        except:
-            st.latex(" Try Again 🙃 ")
+                ss.doc.add_table(rows=9, cols=1, style='Table Grid')
+                for j, items in enumerate(json_str.items()):
+                    ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
+                ss.doc.add_paragraph()
+                # ss.doc.save('generated.docx')
+                st.write(" Question Added ")
+                print(f"Table Added")
+            except:
+                st.warning("Please Generate the Question First")
+                ss.genQs-=1
+        
+        with download:
+            if downld:
+                st.write("File Saved")
+                ss.doc.save('generated.docx')
+                st.download_button(label=" ⬇️ ",data=open('generated.docx','rb').read(),file_name='generated.docx',mime='application/octet-stream',)

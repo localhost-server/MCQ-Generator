@@ -1,12 +1,11 @@
 # Importing modules 
 import streamlit as st
 from streamlit import session_state as ss
-# import io
+import re
 from helfunc import extract_data , parse_string , disGen , file_upload_check
 import os
-from docx import Document
 # Importing Python Docx Reader
-import unicodedata
+from docx import Document
 # Importing PyPanDoc
 import pypandoc
 # Importing Tempfile
@@ -40,7 +39,7 @@ uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])
 genQtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
 # template= """I have questions in specific format and you have to generate new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same : {question}"""
 # genCtemplate= """I have questions in specific format and you have to correct the content and return the corrected question in json format only , improve the hint or explanation if you feel it's not correct , keys format should be strictly same , keep sub-topic same , don't send additional data like description of what you have done : {question}"""
-genCtemplate= """I have questions in specific format and you have to correct the content and return the corrected question in json format only , rephrase the hint or explanation if you feel it's not correct , keys format should be strictly same , keep sub-topic same , don't send additional data like description of what you have done : {question}"""
+genCtemplate= """I have questions in specific format and you have to correct the hint and explanation only and return the corrected question in json format only , rephrase the hint or explanation if you feel it's not correct , keys format should be strictly same , keep sub-topic same , don't send additional data like description of what you have done : {question}"""
 genAdtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic but it should involve some advanced concepts or more tough with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
 
 
@@ -114,7 +113,7 @@ if uploaded_file:
             # + f" {'Image 📷 Missing' if question.find('img') else ''}"
             qs['Question'] += ' ⁉📷'
         disGen(qs)
-
+        year=re.search(r'\b20\d{2}\b',str(questions[q_no - 1])).group()
         
         # Dividing the Button into five Columns
         gen_similar,gen_corrected,copyit,gen_advanced,addit,download=st.columns(6)
@@ -144,6 +143,8 @@ if uploaded_file:
         if ' ⁉📷' in qs['Question']:
             qs['Question'] = qs['Question'].replace(' ⁉📷', '')
 
+        # print(year)
+        
         if similar :
             prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
             llm_chain = LLMChain(prompt=prompt, llm=llm)

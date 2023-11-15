@@ -44,7 +44,7 @@ def extract_data(question):
     # question_text = ' '.join([p.text for p in p_tags[:-1]])  # Join all p tags except the last one (year)
     try:
         question_text=question.find('tr',class_='header').text.strip()
-        question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
+        # question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
 
         question_dict[format[0]] = question_text.strip().replace('\n', ' ')
 

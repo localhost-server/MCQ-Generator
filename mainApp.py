@@ -85,19 +85,19 @@ if uploaded_file:
 
     # Creating json file for the questions
     if 'question_set' not in ss:
-        ss.question_set={}
+        question_set={}
         format=["Question","Option A","Option B","Option C","Option D","Correct Answer","Hint","Explanation","Sub-topic"]
         rows = configs.find_all('tr')
         # Creating a dictionary for the configs
-        ss.question_set["Config"]={cols[0].text: cols[1].text for row in rows for cols in [row.find_all(['th', 'td'])] if cols}
+        question_set["Config"]={cols[0].text: cols[1].text for row in rows for cols in [row.find_all(['th', 'td'])] if cols}
         # st.info(question_set["Config"])
-        for key,values in ss.question_set["Config"].items():
+        for key,values in question_set["Config"].items():
             # Checking in console
             # print(f"{key} : {values}")
             st.write(f"{key} : {values}" )
         # Creating a dictionary for the questions
         # question_set["Questions"]=[dict(zip(format,[(values.text[:-6].replace('\n','') if '(20' in values.text else values.text.replace('\n','')) for values in questions[i].columns[0].cells])) for i in range(no_questions)]    
-        ss.question_set["Questions"]=[extract_data(question) for question in questions] 
+        question_set["Questions"]=[extract_data(question) for question in questions] 
 
     # Creating Columns
     ReadQuestion,GenerateQuestion=st.columns([4,5]) 
@@ -108,16 +108,17 @@ if uploaded_file:
 
         # st.write(question_set["Questions"][q_no - 1])
         # print(questions[q_no-1])
-        qs=ss.question_set["Questions"][q_no - 1]
+        qs=question_set["Questions"][q_no - 1]
         if questions[q_no - 1].find('img') and ' ⁉📷' not in qs['Question']:
             # + f" {'Image 📷 Missing' if question.find('img') else ''}"
             qs['Question'] += ' ⁉📷'
         disGen(qs)
+
         match=re.search(r'\b20\d{2}\b',str(questions[q_no - 1]))
         if match:
             year=match.group()
         else:
-            year=None
+            year=''
         
         # Dividing the Button into five Columns
         gen_similar,gen_corrected,copyit,gen_advanced,addit,download=st.columns(6)

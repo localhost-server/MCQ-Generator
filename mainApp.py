@@ -114,11 +114,11 @@ if uploaded_file:
             qs['Question'] += ' ⁉📷'
         disGen(qs)
 
-        match=re.search(r'\b20\d{2}\b',str(questions[q_no - 1]))
+        match=re.search(r'\(\b20\d{2}\b\)',str(questions[q_no - 1]))
         if match:
-            year=f" \n {match.group()} "
+            year=f" \t {match.group()} "
         else:
-            year=''
+            year=None
         
         # Dividing the Button into five Columns
         gen_similar,gen_corrected,copyit,gen_advanced,addit,download=st.columns(6)
@@ -174,7 +174,12 @@ if uploaded_file:
             json_str=qs
             ss.doc.add_table(rows=9, cols=1, style='Table Grid')
             for j, items in enumerate(json_str.items()):
-                ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
+                match=re.search(r'\(\b20\d{2}\b\)', items[1])
+                if match:
+                    ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1].replace(match.group(), f'\n{match.group()}')
+                else:
+                    ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
+
             ss.doc.add_paragraph()
             with copyit:
                 st.write(" Qn 📋ed")
@@ -197,7 +202,11 @@ if uploaded_file:
                 json_str=parse_string(ss.generatedContent)
                 ss.doc.add_table(rows=9, cols=1, style='Table Grid')
                 for j, items in enumerate(json_str.items()):
-                    ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
+                    match=re.search(r'\(\b20\d{2}\b\)', items[1])
+                    if match:
+                        ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1].replace(match.group(), f'\n{match.group()}')
+                    else:
+                        ss.doc.tables[ss.genQs].rows[j].cells[0].text = items[1]
                 ss.doc.add_paragraph()
                 # ss.doc.save('generated.docx')
                 with addit:

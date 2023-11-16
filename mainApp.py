@@ -116,7 +116,7 @@ if uploaded_file:
 
         match=re.search(r'\b20\d{2}\b',str(questions[q_no - 1]))
         if match:
-            year=match.group()
+            year=f" \n {match.group()} "
         else:
             year=''
         

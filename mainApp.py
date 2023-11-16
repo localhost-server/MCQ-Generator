@@ -113,7 +113,11 @@ if uploaded_file:
             # + f" {'Image 📷 Missing' if question.find('img') else ''}"
             qs['Question'] += ' ⁉📷'
         disGen(qs)
-        year=re.search(r'\b20\d{2}\b',str(questions[q_no - 1])).group()
+        match=re.search(r'\b20\d{2}\b',str(questions[q_no - 1]))
+        if match:
+            year=match.group()
+        else:
+            year=None
         
         # Dividing the Button into five Columns
         gen_similar,gen_corrected,copyit,gen_advanced,addit,download=st.columns(6)

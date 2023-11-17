@@ -46,7 +46,7 @@ def extract_data(question):
         question_text=question.find('tr',class_='header').text.strip()
         # question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
 
-        question_dict[format[0]] = question_text.strip().replace('\n', ' ')
+        question_dict[format[0]] = question_text.strip() #.replace('\n', ' ')
 
         # Extract the options
         options = question.find_all('td')

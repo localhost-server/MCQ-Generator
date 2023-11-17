@@ -131,7 +131,7 @@ if uploaded_file:
             corrected=st.button("✅")
         
         with copyit:
-            copied=st.button("©️📋")
+            copied=st.button("📋")
             
         with gen_advanced:
             advanced=st.button("↗️")

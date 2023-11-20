@@ -25,7 +25,7 @@ os.environ['OPENAI_API_KEY'] = 'sk-FXDoeXRQX7P7j3WfBVwxT3BlbkFJ4mWi96Ps452UNB2Z7
 # Setting page config to wide mode
 st.set_page_config(layout="wide")
 # Title for the web app
-st.title('MCQ Solver')
+st.title('MCQ Generator')
 
 # Uploading the file
 uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])

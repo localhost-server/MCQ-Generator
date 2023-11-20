@@ -25,7 +25,7 @@ os.environ['OPENAI_API_KEY'] = 'sk-FXDoeXRQX7P7j3WfBVwxT3BlbkFJ4mWi96Ps452UNB2Z7
 # Setting page config to wide mode
 st.set_page_config(layout="wide")
 # Title for the web app
-st.title('MCQ Solver')
+st.title('MCQ Generator')
 
 # Uploading the file
 uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])
@@ -125,22 +125,22 @@ if uploaded_file:
 
         # Creating Buttons side by side
         with gen_similar:
-            similar=st.button("⚙️")
+            similar=st.button("⚙️",help="Generate Similar Question")
             
         with gen_corrected:
-            corrected=st.button("✅")
+            corrected=st.button("✅",help="Generate Corrected Question")
         
         with copyit:
-            copied=st.button("📋")
+            copied=st.button("📋",help="Copy the same Question into File")
             
         with gen_advanced:
-            advanced=st.button("↗️")
+            advanced=st.button("↗️", help="Generate Advanced Question")
         
         with addit:
-            addIt=st.button(" ➕ ")
+            addIt=st.button(" ➕ " , help="Add the Generated Question into File")
         
         with download:
-            downld=st.button("⏬")
+            downld=st.button("⏬" , help="Save and Download the File")
 
 
     with GenerateQuestion:

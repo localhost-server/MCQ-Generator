@@ -4,3 +4,4 @@ bs4
 pandoc
 openai == 0.28
 python-docx
+streamlit

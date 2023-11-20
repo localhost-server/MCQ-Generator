@@ -2,7 +2,21 @@ import json
 import ast
 import re
 import streamlit as st
+from streamlit import session_state as ss
 import unicodedata
+
+def file_upload_check(file):
+    if not hasattr(ss, 'uploaded_file') or ss.uploaded_file is None:
+        # If there is no previously uploaded file, set the current file as the uploaded file
+        ss.uploaded_file = file
+        return True
+    elif ss.uploaded_file.name == file.name:
+        # If the current file has the same name as the previously uploaded file, return True
+        return True
+    else:
+        # If the current file is different from the previously uploaded file, update the uploaded file and return False
+        ss.uploaded_file = file
+        return False
 
 # Displaying data in streamlit
 def disGen(data):
@@ -30,9 +44,9 @@ def extract_data(question):
     # question_text = ' '.join([p.text for p in p_tags[:-1]])  # Join all p tags except the last one (year)
     try:
         question_text=question.find('tr',class_='header').text.strip()
-        question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
+        # question_text = re.sub(r'\(\d+\)', '', question_text)  # Remove the year
 
-        question_dict[format[0]] = question_text.strip().replace('\n', ' ')
+        question_dict[format[0]] = question_text.strip() #.replace('\n', ' ')
 
         # Extract the options
         options = question.find_all('td')

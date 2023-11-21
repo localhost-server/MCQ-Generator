@@ -117,6 +117,8 @@ if uploaded_file:
             # + f" {'Image 📷 Missing' if question.find('img') else ''}"
             qs['Question'] += ' ⁉📷'
         disGen(qs)
+        st.write(f"\n")
+        st.write(f"\n")
 
         match=re.search(r'\(\b20\d{2}\b\)',str(questions[q_no - 1]))
         if match:

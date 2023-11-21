@@ -2,7 +2,7 @@
 import streamlit as st
 from streamlit import session_state as ss
 import re
-from helfunc import extract_data , parse_string , disGen , file_upload_check
+from helfunc import extract_data , parse_string , disGen , file_upload_check , load_api_key , save_api_key 
 import os
 # Importing Python Docx Reader
 from docx import Document
@@ -18,22 +18,26 @@ from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
-# Setting up the API key
-os.environ['OPENAI_API_KEY'] = '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' 
-# openai.api_key = os.environ['OPENAI_API_KEY']
-
 # Setting page config to wide mode
 st.set_page_config(layout="wide")
-# Title for the web app
-st.title('MCQ Generator')
+
+# Load API key from the configuration file
+saved_api_key = load_api_key()
+
+# Global variable to store the API key
+api_key = st.text_input("Enter your OpenAI API key:", type="password", key="api_key", value=saved_api_key)
+
+# If the user provided an API key, save it to the configuration file
+if api_key and api_key != saved_api_key:
+    save_api_key(api_key)
+    os.environ['OPENAI_API_KEY'] = api_key
+
+# Title for the web app with the OpenAI API key
+st.title(f'MCQ Generator')
 
 # Uploading the file
 uploaded_file = st.file_uploader("Upload Your Files",type=['docx'])
 
-
-# For counting the number of questions
-# if 'genQs' not in ss:
-#     ss.genQs=-1
 
 # Creating a prompt template
 genQtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
@@ -43,7 +47,7 @@ genCtemplate= """I have questions in specific format and you have to correct the
 genAdtemplate= """I have questions in specific format and you have to generate and return new innovative practice question from same sub-topic but it should involve some advanced concepts or more tough with appropriate content even if it's not there in what i have sent to you for students in json format , keys format should be strictly same , keep sub-topic same : {question}"""
 
 
-llm = ChatOpenAI(model="gpt-4-1106-preview",openai_api_key=os.environ['OPENAI_API_KEY'])
+llm = ChatOpenAI(model="gpt-4-1106-preview",openai_api_key=ss.api_key)  # os.environ['OPENAI_API_KEY'])
 # prompt = PromptTemplate(template=genQtemplate, input_variables=["question"])
 # llm_chain = LLMChain(prompt=prompt, llm=llm)
 

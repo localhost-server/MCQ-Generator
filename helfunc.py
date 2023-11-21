@@ -5,6 +5,30 @@ import streamlit as st
 from streamlit import session_state as ss
 import unicodedata
 
+
+# Function to save API key to a configuration file
+def save_api_key(api_key):
+    try:
+        with open('.config', 'w') as file:
+            file.write(f"OPENAI_API_KEY={api_key}")
+    except Exception as e:
+        st.warning(f"Error saving API key: {e}")
+
+# Function to load API key from a configuration file
+def load_api_key():
+    try:
+        with open('.config', 'r') as file:
+            for line in file:
+                if line.startswith("OPENAI_API_KEY="):
+                    return line[len("OPENAI_API_KEY="):].strip()
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        st.warning(f"Error loading API key: {e}")
+        return None
+
+
+
 def file_upload_check(file):
     if not hasattr(ss, 'uploaded_file') or ss.uploaded_file is None:
         # If there is no previously uploaded file, set the current file as the uploaded file

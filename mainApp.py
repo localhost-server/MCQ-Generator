@@ -198,7 +198,7 @@ if uploaded_file:
             json_str=parse_string(ss.generatedContent)
             disGen(json_str) 
 
-    
+        
         if addIt:
             ss.genQs+=1
             try:

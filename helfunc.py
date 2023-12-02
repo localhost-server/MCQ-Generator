@@ -50,14 +50,37 @@ def disGen(data):
 # API JSON PARSER
 def parse_string(data):
     if data.startswith("```json") and data.endswith("```"):
+        start = data.find("{")
+        end = data.rfind("}") + 1
+        data = data[start:end]
+        data_dict = json.loads(data)
+        print("String PARSED")
+    else:
+        data_dict = ast.literal_eval(data)
+        print("String PARSED")
+
+    if 'Question' in data_dict:
+        lines = data_dict['Question'].splitlines()
+        for i in reversed(range(len(lines))):
+            if re.search(r'\b\d{4}\b', lines[i]):
+                lines.pop(i)
+                print("Year Section Removed")
+                break
+        data_dict['Question'] = '\n'.join(lines)
+    return data_dict
+
+# API CORRECT ANSWER PARSER
+def parse_C_string(data):
+    if data.startswith("```json") and data.endswith("```"):
         start=data.find("{")
         end=data.rfind("}")+1
         json_str=data[start:end]
         return json.loads(json_str)
     else:
         return ast.literal_eval(data)
+
     
-# Extracting data from html content from question 
+# Extracting data from html content from question
 # Question Extraction function
 def extract_data(question):
     question_dict = {}

@@ -2,7 +2,7 @@
 import streamlit as st
 from streamlit import session_state as ss
 import re
-from helfunc import extract_data , parse_string , disGen , file_upload_check , load_api_key , save_api_key 
+from helfunc import extract_data , parse_string , disGen , file_upload_check , load_api_key , save_api_key , parse_C_string
 import os
 # Importing Python Docx Reader
 from docx import Document

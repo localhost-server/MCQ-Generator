@@ -172,7 +172,7 @@ if uploaded_file:
             ss.generatedContent = llm_chain.run(str(qs))
             print(f" Corrected : {ss.generatedContent}")
             st.write(f"Generated Question : ")
-            json_str=parse_string(ss.generatedContent)
+            json_str=parse_C_string(ss.generatedContent)
             disGen(json_str) 
 
         elif copied:

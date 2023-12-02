@@ -75,8 +75,10 @@ def parse_C_string(data):
         start=data.find("{")
         end=data.rfind("}")+1
         json_str=data[start:end]
+        print("String PARSED")
         return json.loads(json_str)
     else:
+        print("String PARSED")
         return ast.literal_eval(data)
 
     
